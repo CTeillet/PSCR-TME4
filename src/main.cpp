@@ -17,11 +17,17 @@ void transaction(Banque& b){
 	std::this_thread::sleep_for (std::chrono::milliseconds(r));
 }
 
+void comptabiliser(Banque &  b, int nb){
+	b.comptabiliser(nb);
+}
+
 int main () {
 	vector<thread> threads;
 	// TODO : creer des threads qui font ce qui est demandé
 	Banque b = Banque(NB_CMP, SOLDE_BASE);
 	::srand(::time(nullptr));
+
+	thread comptable = thread(Banque::comptabiliser, NB_CMP*SOLDE_BASE);
 
 	for (int i = 0; i < NB_THREAD; ++i) {
 		threads.emplace_back(transaction, std::ref(b));
@@ -30,6 +36,7 @@ int main () {
 	for (auto & t : threads) {
 		t.join();
 	}
+	comptable.join();
 
 	// TODO : tester solde = NB_THREAD * SOLDE_BASE
 	std::cout << std::boolalpha << b.comptabiliser(NB_CMP*SOLDE_BASE) << std::endl;
