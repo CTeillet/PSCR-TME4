@@ -7,11 +7,15 @@ using namespace std;
 namespace pr {
 
 void Banque::transfert(size_t deb, size_t cred, unsigned int val) {
+	comptes[deb].lock();
+	comptes[cred].lock();
 	Compte & debiteur = comptes[deb];
 	Compte & crediteur = comptes[cred];
 	if (debiteur.debiter(val)) {
 		crediteur.crediter(val);
 	}
+	comptes[deb].unlock();
+	comptes[cred].unlock();
 }
 size_t Banque::size() const {
 	return comptes.size();
