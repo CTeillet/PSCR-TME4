@@ -5,8 +5,9 @@
 using namespace std;
 
 namespace pr {
-
+	std::mutex m;
 void Banque::transfert(size_t deb, size_t cred, unsigned int val) {
+	m.lock();
 	comptes[deb].lock();
 	comptes[cred].lock();
 	Compte & debiteur = comptes[deb];
@@ -16,6 +17,7 @@ void Banque::transfert(size_t deb, size_t cred, unsigned int val) {
 	}
 	comptes[deb].unlock();
 	comptes[cred].unlock();
+	m.unlock();
 }
 size_t Banque::size() const {
 	return comptes.size();
@@ -23,6 +25,7 @@ size_t Banque::size() const {
 bool Banque::comptabiliser (int attendu) const {
 	int bilan = 0;
 	int id = 0;
+	m.lock();
 	for (const auto & compte : comptes) {
 		if (compte.getSolde() < 0) {
 			cout << "Compte " << id << " en négatif : " << compte.getSolde() << endl;
@@ -30,6 +33,7 @@ bool Banque::comptabiliser (int attendu) const {
 		bilan += compte.getSolde();
 		id++;
 	}
+	m.unlock();
 	if (bilan != attendu) {
 		cout << "Bilan comptable faux : attendu " << attendu << " obtenu : " << bilan << endl;
 	}
